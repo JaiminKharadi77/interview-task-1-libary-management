@@ -8,7 +8,7 @@ export const users = [
   },
   {
     id: 2,
-    email: "librarian@example.com",
+    email: "lib@example.com",
     password: "lib123",
     role: "librarian",
     name: "Library Staff",
