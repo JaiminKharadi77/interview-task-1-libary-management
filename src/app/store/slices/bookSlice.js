@@ -11,7 +11,7 @@ const initialState = {
     },
     {
       id: 2,
-      title: "1984",    
+      title: "1984",
       author: "George Orwell",
       genre: "Science Fiction",
       userIsBorrowedStatus: "borrowed",
@@ -115,13 +115,13 @@ const bookSlice = createSlice({
     // Update book borrowing status
     updateBorrowStatus: (state, action) => {
       const { id, status } = action.payload;
-      const book = state.books.find((book) => book.id === id);
-      if (book) {
-        book.userIsBorrowedStatus = status;
-      }
+      state.books = state.books.map((book) =>
+        book.id === id ? { ...book, userIsBorrowedStatus: status } : book
+      );
     },
   },
 });
 
-export const { addBook, updateBookDetails, deleteBook, updateBorrowStatus } = bookSlice.actions;
+export const { addBook, updateBookDetails, deleteBook, updateBorrowStatus } =
+  bookSlice.actions;
 export default bookSlice.reducer;

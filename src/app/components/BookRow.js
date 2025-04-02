@@ -1,7 +1,14 @@
 import BookStatus from "./BookStatus";
 import BookForm from "./BookForm";
-import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import ConfirmDialog from "./ConfirmDialog";
+import {
+  Menu,
+  Transition,
+  MenuItem,
+  MenuItems,
+  MenuButton,
+} from "@headlessui/react";
+import { Fragment, useState } from "react";
 
 const BookRow = ({
   book,
@@ -14,6 +21,27 @@ const BookRow = ({
   onCancelEdit,
   onApprove,
 }) => {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleRejectClick = () => {
+    setShowRejectDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setShowDeleteDialog(false);
+    onDelete(book.id);
+  };
+
+  const handleConfirmReject = () => {
+    setShowRejectDialog(false);
+    onReject(book.id);
+  };
+
   if (isEditing && editingBook?.id === book.id) {
     return (
       <tr key={book.id} className="hover:bg-gray-50">
@@ -29,96 +57,94 @@ const BookRow = ({
   }
 
   return (
-    <tr key={book.id} className="hover:bg-gray-50">
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900">{book.title}</div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-900">{book.author}</div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-900">{book.genre}</div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <BookStatus status={book.userIsBorrowedStatus} />
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        <Menu as="div" className="relative inline-block text-left">
-          <div>
-            <Menu.Button className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-              Actions
-            </Menu.Button>
-          </div>
+    <>
+      <tr key={book.id} className="hover:bg-gray-50">
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="text-sm font-medium text-gray-900">{book.title}</div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="text-sm text-gray-900">{book.author}</div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="text-sm text-gray-900">{book.genre}</div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <BookStatus status={book.userIsBorrowedStatus} />
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <Menu as="div" className="relative inline-block text-left">
+            <div>
+              <MenuButton className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                Actions
+              </MenuButton>
+            </div>
 
-          <Transition
-            as={Fragment}
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95"
-          >
-            <Menu.Items className="absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-              <div className="px-1 py-1">
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      onClick={() => onEdit(book)}
-                      className={`${
-                        active ? "bg-blue-500 text-white" : "text-gray-900"
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <MenuItems className="absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                <div className="px-1 py-1">
+                  <MenuItem
+                    as="button"
+                    onClick={() => onEdit(book)}
+                    className="group flex w-full items-center rounded-md px-2 py-2 text-sm hover:bg-blue-500 hover:text-white text-gray-900"
+                  >
+                    Edit
+                  </MenuItem>
+                  {book.userIsBorrowedStatus === "pending" && onApprove && (
+                    <MenuItem
+                      as="button"
+                      onClick={() => onApprove(book.id)}
+                      className="group flex w-full items-center rounded-md px-2 py-2 text-sm hover:bg-green-500 hover:text-white text-gray-900"
                     >
-                      Edit
-                    </button>
+                      Approve
+                    </MenuItem>
                   )}
-                </Menu.Item>
-                {book.userIsBorrowedStatus === "pending" && onApprove && (
-                  <>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={() => onApprove(book.id)}
-                          className={`${
-                            active ? "bg-green-500 text-white" : "text-gray-900"
-                          } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                        >
-                          Approve
-                        </button>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={() => onReject(book.id)}
-                          className={`${
-                            active ? "bg-red-500 text-white" : "text-gray-900"
-                          } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                        >
-                          Reject
-                        </button>
-                      )}
-                    </Menu.Item>
-                  </>
-                )}
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      onClick={() => onDelete(book.id)}
-                      className={`${
-                        active ? "bg-red-500 text-white" : "text-gray-900"
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                  {book.userIsBorrowedStatus !== "available" && (
+                    <MenuItem
+                      as="button"
+                      onClick={handleRejectClick}
+                      className="group flex w-full items-center rounded-md px-2 py-2 text-sm hover:bg-red-500 hover:text-white text-gray-900"
                     >
-                      Delete
-                    </button>
+                      Reject
+                    </MenuItem>
                   )}
-                </Menu.Item>
-              </div>
-            </Menu.Items>
-          </Transition>
-        </Menu>
-      </td>
-    </tr>
+                  <MenuItem
+                    as="button"
+                    onClick={handleDeleteClick}
+                    className="group flex w-full items-center rounded-md px-2 py-2 text-sm hover:bg-red-500 hover:text-white text-gray-900"
+                  >
+                    Delete
+                  </MenuItem>
+                </div>
+              </MenuItems>
+            </Transition>
+          </Menu>
+        </td>
+      </tr>
+
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this book? This action cannot be undone."
+      />
+
+      <ConfirmDialog
+        isOpen={showRejectDialog}
+        onClose={() => setShowRejectDialog(false)}
+        onConfirm={handleConfirmReject}
+        title="Confirm Reject"
+        message="Are you sure you want to reject this book request?"
+      />
+    </>
   );
 };
 

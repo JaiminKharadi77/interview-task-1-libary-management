@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { users } from "../authDataBase/user";
 
 const AuthContext = createContext();
@@ -9,6 +9,16 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
+
+  // Check localStorage on initial load
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      setUser(userData);
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   const login = (email, password) => {
     setError("");
@@ -24,18 +34,26 @@ export function AuthProvider({ children }) {
       return false;
     }
 
-    setIsAuthenticated(true);
-    setUser({
+    const userData = {
       id: foundUser.id,
       email: foundUser.email,
       role: foundUser.role,
       name: foundUser.name,
-    });
+    };
+
+    // Store user data in localStorage
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    setIsAuthenticated(true);
+    setUser(userData);
 
     return true;
   };
 
   const logout = () => {
+    // Clear localStorage
+    localStorage.removeItem("user");
+
     setIsAuthenticated(false);
     setUser(null);
     setError("");

@@ -40,9 +40,7 @@ function LibrarianType({ books }) {
   };
 
   const handleDeleteBook = (bookId) => {
-    if (window.confirm("Are you sure you want to delete this book?")) {
-      dispatch(deleteBook(bookId));
-    }
+    dispatch(deleteBook(bookId));
   };
 
   const handleEditBook = (book) => {
@@ -78,7 +76,9 @@ function LibrarianType({ books }) {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">Admin Dashboard</h2>
+        <h2 className="text-3xl font-bold text-gray-800">
+          Librarian Dashboard
+        </h2>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"

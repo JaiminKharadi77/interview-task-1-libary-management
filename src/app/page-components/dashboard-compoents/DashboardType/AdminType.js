@@ -36,9 +36,7 @@ function AdminType({ books }) {
   };
 
   const handleDeleteBook = (bookId) => {
-    if (window.confirm("Are you sure you want to delete this book?")) {
-      dispatch(deleteBook(bookId));
-    }
+    dispatch(deleteBook(bookId));
   };
 
   const handleEditBook = (book) => {
