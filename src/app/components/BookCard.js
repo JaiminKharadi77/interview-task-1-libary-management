@@ -2,6 +2,8 @@ import React, { useState, memo } from "react";
 import { useDispatch } from "react-redux";
 import { updateBorrowStatus } from "@/app/store/slices/bookSlice";
 import ConfirmDialog from "./ConfirmDialog";
+import { BOOK_STATUS, DIALOG_MESSAGES } from "../constants/bookConstants";
+import { getStatusColor, getButtonText, capitalizeFirstLetter } from "../utils/bookUtils";
 
 function BookCard({ book }) {
   const dispatch = useDispatch();
@@ -13,56 +15,36 @@ function BookCard({ book }) {
   });
 
   const handleStatusChange = () => {
-    if (book.userIsBorrowedStatus === "available") {
-      // For requesting to borrow, no confirmation needed
-      dispatch(updateBorrowStatus({ id: book.id, status: "pending" }));
+    if (book.userIsBorrowedStatus === BOOK_STATUS.AVAILABLE) {
+      dispatch(updateBorrowStatus({ id: book.id, status: BOOK_STATUS.PENDING }));
+      return;
     }
-    if (book.userIsBorrowedStatus === "pending") {
-      // For canceling request
+
+    if (book.userIsBorrowedStatus === BOOK_STATUS.PENDING) {
       setDialogConfig({
-        title: "Cancel Request",
-        message:
-          "Are you sure you want to cancel your request to borrow this book?",
+        title: DIALOG_MESSAGES.CANCEL_REQUEST.title,
+        message: DIALOG_MESSAGES.CANCEL_REQUEST.message,
         onConfirm: () => {
-          dispatch(updateBorrowStatus({ id: book.id, status: "available" }));
+          dispatch(updateBorrowStatus({ id: book.id, status: BOOK_STATUS.AVAILABLE }));
+          setShowConfirmDialog(false);
+        },
+      });
+      setShowConfirmDialog(true);
+      return;
+    }
+
+    if (book.userIsBorrowedStatus === BOOK_STATUS.BORROWED) {
+      setDialogConfig({
+        title: DIALOG_MESSAGES.RETURN.title,
+        message: DIALOG_MESSAGES.RETURN.message,
+        onConfirm: () => {
+          dispatch(updateBorrowStatus({ id: book.id, status: BOOK_STATUS.AVAILABLE }));
           setShowConfirmDialog(false);
         },
       });
       setShowConfirmDialog(true);
     }
-    if (book.userIsBorrowedStatus === "borrowed") {
-      // For returning book
-      setDialogConfig({
-        title: "Return Book",
-        message: "Are you sure you want to return this book?",
-        onConfirm: () => {
-          dispatch(updateBorrowStatus({ id: book.id, status: "available" }));
-          setShowConfirmDialog(false);
-        },
-      });
-      setShowConfirmDialog(true);
-    }
   };
-
-  const statusColors = {
-    available: "bg-green-100 text-green-800",
-    pending: "bg-yellow-100 text-yellow-800",
-    borrowed: "bg-red-100 text-red-800",
-    default: "bg-gray-100 text-gray-800",
-  };
-
-  const buttonTexts = {
-    available: "Request to Borrow",
-    pending: "Cancel Request",
-    borrowed: "Return Book",
-    default: "Change Status",
-  };
-
-  const getStatusColor = () =>
-    statusColors[book.userIsBorrowedStatus] || statusColors.default;
-
-  const getButtonText = () =>
-    buttonTexts[book.userIsBorrowedStatus] || buttonTexts.default;
 
   console.log(book.title);
 
@@ -88,16 +70,15 @@ function BookCard({ book }) {
           )}
           <div className="flex items-center justify-between mt-4">
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor()}`}
+              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(book?.userIsBorrowedStatus)}`}
             >
-              {book?.userIsBorrowedStatus.charAt(0).toUpperCase() +
-                book?.userIsBorrowedStatus.slice(1)}
+              {capitalizeFirstLetter(book?.userIsBorrowedStatus)}
             </span>
             <button
               onClick={handleStatusChange}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300"
             >
-              {getButtonText()}
+              {getButtonText(book?.userIsBorrowedStatus)}
             </button>
           </div>
         </div>
