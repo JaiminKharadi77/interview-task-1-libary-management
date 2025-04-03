@@ -3,9 +3,13 @@ import { useDispatch } from "react-redux";
 import { updateBorrowStatus } from "@/app/store/slices/bookSlice";
 import ConfirmDialog from "./ConfirmDialog";
 import { BOOK_STATUS, DIALOG_MESSAGES } from "../constants/bookConstants";
-import { getStatusColor, getButtonText, capitalizeFirstLetter } from "../utils/bookUtils";
+import {
+  getStatusColor,
+  getButtonText,
+  capitalizeFirstLetter,
+} from "../utils/bookUtils";
 
-function BookCard({ book }) {
+function BookCard({ book, key }) {
   const dispatch = useDispatch();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [dialogConfig, setDialogConfig] = useState({
@@ -16,7 +20,9 @@ function BookCard({ book }) {
 
   const handleStatusChange = () => {
     if (book.userIsBorrowedStatus === BOOK_STATUS.AVAILABLE) {
-      dispatch(updateBorrowStatus({ id: book.id, status: BOOK_STATUS.PENDING }));
+      dispatch(
+        updateBorrowStatus({ id: book.id, status: BOOK_STATUS.PENDING })
+      );
       return;
     }
 
@@ -25,7 +31,9 @@ function BookCard({ book }) {
         title: DIALOG_MESSAGES.CANCEL_REQUEST.title,
         message: DIALOG_MESSAGES.CANCEL_REQUEST.message,
         onConfirm: () => {
-          dispatch(updateBorrowStatus({ id: book.id, status: BOOK_STATUS.AVAILABLE }));
+          dispatch(
+            updateBorrowStatus({ id: book.id, status: BOOK_STATUS.AVAILABLE })
+          );
           setShowConfirmDialog(false);
         },
       });
@@ -38,7 +46,9 @@ function BookCard({ book }) {
         title: DIALOG_MESSAGES.RETURN.title,
         message: DIALOG_MESSAGES.RETURN.message,
         onConfirm: () => {
-          dispatch(updateBorrowStatus({ id: book.id, status: BOOK_STATUS.AVAILABLE }));
+          dispatch(
+            updateBorrowStatus({ id: book.id, status: BOOK_STATUS.AVAILABLE })
+          );
           setShowConfirmDialog(false);
         },
       });
@@ -51,7 +61,7 @@ function BookCard({ book }) {
   return (
     <>
       <div
-        key={book?.id}
+        key={key}
         className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
       >
         <div className="p-6">
@@ -70,7 +80,9 @@ function BookCard({ book }) {
           )}
           <div className="flex items-center justify-between mt-4">
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(book?.userIsBorrowedStatus)}`}
+              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                book?.userIsBorrowedStatus
+              )}`}
             >
               {capitalizeFirstLetter(book?.userIsBorrowedStatus)}
             </span>
