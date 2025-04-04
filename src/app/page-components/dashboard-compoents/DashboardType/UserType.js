@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import BookCard from "@/app/components/BookCard";
 import SearchBar from "@/app/components/SearchBar";
 import { filterBooks } from "@/app/components/filterBooks";
+import { BOOK_STATUS } from "@/app/constants/bookConstants";
 
 const BookSection = ({ title, books, color, searchQuery }) => (
   <div className="mb-12">
@@ -32,17 +33,17 @@ function UserType({ books }) {
   const bookCategories = [
     {
       title: "Borrowed Books",
-      type: "borrowed",
+      type: BOOK_STATUS.BORROWED,
       color: "red",
     },
     {
       title: "Available Books",
-      type: "available",
+      type: BOOK_STATUS.AVAILABLE,
       color: "green",
     },
     {
       title: "Pending Books",
-      type: "pending",
+      type: BOOK_STATUS.PENDING,
       color: "yellow",
     },
   ];

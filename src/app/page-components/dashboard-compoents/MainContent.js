@@ -2,7 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import UserType from "./DashboardType/UserType";
 import AdminType from "./DashboardType/AdminType";
-import LibrarianType from "./DashboardType/Librarian";
+import LibrarianType from "./DashboardType/LibrarianType";
 
 const DashboardComponents = {
   admin: AdminType,

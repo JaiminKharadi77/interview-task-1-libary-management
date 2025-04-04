@@ -1,13 +1,18 @@
 "use client";
-import BookStatus from "./BookStatus";
-import BookForm from "./BookForm";
-import ConfirmDialog from "./ConfirmDialog";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { useState, memo } from "react";
 import { useDispatch } from "react-redux";
-import { Fragment, useState } from "react";
-import { updateBookDetails, deleteBook } from "../store/slices/bookSlice";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import {
+  updateBookDetails,
+  deleteBook,
+  updateBorrowStatus,
+} from "../store/slices/bookSlice";
+import BookForm from "./BookForm";
+import BookStatus from "./BookStatus";
+import ConfirmDialog from "./ConfirmDialog";
+import { BOOK_STATUS } from "../constants/bookConstants";
 
-const BookRow = ({ book, onReject, onDelete, onApprove }) => {
+const BookRow = ({ book }) => {
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -15,15 +20,6 @@ const BookRow = ({ book, onReject, onDelete, onApprove }) => {
 
   const handleDeleteClick = () => {
     setShowDeleteDialog(true);
-  };
-
-  const handleRejectClick = () => {
-    setShowRejectDialog(true);
-  };
-
-  const handleConfirmReject = () => {
-    setShowRejectDialog(false);
-    onReject(book.id);
   };
 
   const handleConfirmDelete = () => {
@@ -45,6 +41,12 @@ const BookRow = ({ book, onReject, onDelete, onApprove }) => {
     );
   }
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const toggleStatusUpdate = (status) => {
+    dispatch(updateBorrowStatus({ id: book.id, status: status }));
+  };
+
   return (
     <>
       <tr className="hover:bg-gray-50">
@@ -61,43 +63,50 @@ const BookRow = ({ book, onReject, onDelete, onApprove }) => {
           <BookStatus status={book.userIsBorrowedStatus} />
         </td>
         <td className="px-6 py-4 whitespace-nowrap relative">
-          <div className="">
-            <Menu>
-              <MenuButton className="inline-flex items-center gap-2 rounded-md bg-gray-800 py-1.5 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white">
+          <Menu as="div" className="relative inline-block text-left">
+            <div>
+              <MenuButton className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
                 Actions
               </MenuButton>
-              <MenuItems
-                transition
-                anchor="bottom end"
-                className="w-52 origin-top-right rounded-xl border border-white/5 bg-black/5 p-1 text-sm/6 transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
-              >
-                <MenuItem>
-                  <button className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10">
-                    Edit
-                  </button>
+            </div>
+            <MenuItems className="absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+              <div className="px-1 py-1">
+                <MenuItem
+                  as="button"
+                  onClick={() => setIsEditing(true)}
+                  className="group flex w-full items-center rounded-md px-2 py-2 text-sm hover:bg-blue-500 hover:text-white text-gray-900"
+                >
+                  Edit
                 </MenuItem>
-                <MenuItem>
-                  <button className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10">
-                    Duplicate
-                  </button>
-                </MenuItem>
-                <div className="my-1 h-px bg-white/5" />
-                <MenuItem>
-                  <button className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10">
-                    Archive
-                  </button>
-                </MenuItem>
-                <MenuItem>
-                  <button
-                    onClick={() => setShowDeleteDialog(true)}
-                    className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10"
+                {book.userIsBorrowedStatus === BOOK_STATUS.PENDING &&
+                  user.role === "librarian" && (
+                    <MenuItem
+                      as="button"
+                      onClick={() => toggleStatusUpdate(BOOK_STATUS.BORROWED)}
+                      className="group flex w-full items-center rounded-md px-2 py-2 text-sm hover:bg-green-500 hover:text-white text-gray-900"
+                    >
+                      Approve
+                    </MenuItem>
+                  )}
+                {book.userIsBorrowedStatus !== BOOK_STATUS.AVAILABLE && (
+                  <MenuItem
+                    as="button"
+                    onClick={() => setShowRejectDialog(true)}
+                    className="group flex w-full items-center rounded-md px-2 py-2 text-sm hover:bg-red-500 hover:text-white text-gray-900"
                   >
-                    Delete
-                  </button>
+                    Reject
+                  </MenuItem>
+                )}
+                <MenuItem
+                  as="button"
+                  onClick={handleDeleteClick}
+                  className="group flex w-full items-center rounded-md px-2 py-2 text-sm hover:bg-red-500 hover:text-white text-gray-900"
+                >
+                  Delete
                 </MenuItem>
-              </MenuItems>
-            </Menu>
-          </div>
+              </div>
+            </MenuItems>
+          </Menu>
         </td>
       </tr>
 
@@ -112,7 +121,10 @@ const BookRow = ({ book, onReject, onDelete, onApprove }) => {
       {showRejectDialog && (
         <ConfirmDialog
           onClose={() => setShowRejectDialog(false)}
-          onConfirm={handleConfirmReject}
+          onConfirm={() => {
+            toggleStatusUpdate(BOOK_STATUS.AVAILABLE);
+            setShowRejectDialog(false);
+          }}
           title="Confirm Reject"
           message="Are you sure you want to reject this book request?"
         />
@@ -121,4 +133,4 @@ const BookRow = ({ book, onReject, onDelete, onApprove }) => {
   );
 };
 
-export default BookRow;
+export default memo(BookRow);

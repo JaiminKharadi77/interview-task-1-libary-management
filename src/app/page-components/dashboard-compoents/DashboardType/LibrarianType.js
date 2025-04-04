@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import SearchBar from "@/app/components/SearchBar";
 import { useDispatch } from "react-redux";
-import {
-  updateBorrowStatus,
-  deleteBook,
-  updateBookDetails,
-  addBook,
-} from "@/app/store/slices/bookSlice";
+import { addBook } from "@/app/store/slices/bookSlice";
 import AddBookForm from "@/app/components/AddBookForm";
 import BookRow from "@/app/components/BookRow";
 
@@ -22,18 +17,6 @@ function LibrarianType({ books }) {
       book.genre.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
-
-  const handleRejectRequest = (bookId) => {
-    dispatch(updateBorrowStatus({ id: bookId, status: "available" }));
-  };
-
-  const handleApproveRequest = (bookId) => {
-    dispatch(updateBorrowStatus({ id: bookId, status: "borrowed" }));
-  };
-
-  const handleDeleteBook = (bookId) => {
-    dispatch(deleteBook(bookId));
-  };
 
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -88,13 +71,7 @@ function LibrarianType({ books }) {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredBooks.map((book) => (
-              <BookRow
-                key={book.id}
-                book={book}
-                onReject={handleRejectRequest}
-                onApprove={handleApproveRequest}
-                onDelete={handleDeleteBook}
-              />
+              <BookRow key={book.id} book={book} />
             ))}
           </tbody>
         </table>

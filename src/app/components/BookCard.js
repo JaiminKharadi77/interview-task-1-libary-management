@@ -96,13 +96,14 @@ function BookCard({ book, key }) {
         </div>
       </div>
 
-      <ConfirmDialog
-        isOpen={showConfirmDialog}
-        onClose={() => setShowConfirmDialog(false)}
-        onConfirm={dialogConfig.onConfirm}
-        title={dialogConfig.title}
-        message={dialogConfig.message}
-      />
+      {showConfirmDialog && (
+        <ConfirmDialog
+          onClose={() => setShowConfirmDialog(false)}
+          onConfirm={dialogConfig.onConfirm}
+          title={dialogConfig.title}
+          message={dialogConfig.message}
+        />
+      )}
     </>
   );
 }

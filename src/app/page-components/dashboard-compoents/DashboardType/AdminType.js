@@ -1,25 +1,12 @@
 import React, { useState } from "react";
 import SearchBar from "@/app/components/SearchBar";
 import { useDispatch } from "react-redux";
-import {
-  updateBorrowStatus,
-  deleteBook,
-  updateBookDetails,
-  addBook,
-} from "@/app/store/slices/bookSlice";
+import { addBook } from "@/app/store/slices/bookSlice";
 import AddBookForm from "@/app/components/AddBookForm";
 import BookRow from "@/app/components/BookRow";
 
 function AdminType({ books }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingBook, setEditingBook] = useState(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newBook, setNewBook] = useState({
-    title: "",
-    author: "",
-    genre: "",
-  });
   const dispatch = useDispatch();
 
   const filteredBooks = books.filter((book) => {
@@ -31,48 +18,14 @@ function AdminType({ books }) {
     );
   });
 
-  const handleRejectRequest = (bookId) => {
-    dispatch(updateBorrowStatus({ id: bookId, status: "available" }));
-  };
-
-  const handleDeleteBook = (bookId) => {
-    dispatch(deleteBook(bookId));
-  };
-
-  const handleEditBook = (book) => {
-    setEditingBook(book);
-    setIsEditing(true);
-  };
-
-  const handleUpdateBook = () => {
-    dispatch(
-      updateBookDetails({ id: editingBook.id, updatedBook: editingBook })
-    );
-    setIsEditing(false);
-    setEditingBook(null);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditingBook(null);
-  };
-
-  const handleAddBook = () => {
-    if (newBook.title && newBook.author && newBook.genre) {
-      dispatch(addBook(newBook));
-      setNewBook({ title: "", author: "", genre: "" });
-      setShowAddForm(false);
-    }
-  };
-
-  const handleUpdateNewBook = (updatedBook) => {
-    setNewBook(updatedBook);
-  };
+  const [showAddForm, setShowAddForm] = useState(false);
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">Admin Dashboard</h2>
+        <h2 className="text-3xl font-bold text-gray-800">
+          Librarian Dashboard
+        </h2>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -83,9 +36,7 @@ function AdminType({ books }) {
 
       {showAddForm && (
         <AddBookForm
-          newBook={newBook}
-          onAddBook={handleAddBook}
-          onUpdateNewBook={handleUpdateNewBook}
+          onSubmit={(e) => dispatch(addBook(e))}
           onCancel={() => setShowAddForm(false)}
         />
       )}
@@ -120,17 +71,7 @@ function AdminType({ books }) {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredBooks.map((book) => (
-              <BookRow
-                key={book.id}
-                book={book}
-                isEditing={isEditing}
-                editingBook={editingBook}
-                onEdit={handleEditBook}
-                onReject={handleRejectRequest}
-                onDelete={handleDeleteBook}
-                onUpdateBook={handleUpdateBook}
-                onCancelEdit={handleCancelEdit}
-              />
+              <BookRow key={book.id} book={book} />
             ))}
           </tbody>
         </table>
