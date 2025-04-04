@@ -12,14 +12,6 @@ import BookRow from "@/app/components/BookRow";
 
 function LibrarianType({ books }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingBook, setEditingBook] = useState(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newBook, setNewBook] = useState({
-    title: "",
-    author: "",
-    genre: "",
-  });
   const dispatch = useDispatch();
 
   const filteredBooks = books.filter((book) => {
@@ -43,35 +35,7 @@ function LibrarianType({ books }) {
     dispatch(deleteBook(bookId));
   };
 
-  const handleEditBook = (book) => {
-    setEditingBook(book);
-    setIsEditing(true);
-  };
-
-  const handleUpdateBook = () => {
-    dispatch(
-      updateBookDetails({ id: editingBook.id, updatedBook: editingBook })
-    );
-    setIsEditing(false);
-    setEditingBook(null);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditingBook(null);
-  };
-
-  const handleAddBook = () => {
-    if (newBook.title && newBook.author && newBook.genre) {
-      dispatch(addBook(newBook));
-      setNewBook({ title: "", author: "", genre: "" });
-      setShowAddForm(false);
-    }
-  };
-
-  const handleUpdateNewBook = (updatedBook) => {
-    setNewBook(updatedBook);
-  };
+  const [showAddForm, setShowAddForm] = useState(false);
 
   return (
     <div className="p-6">
@@ -89,9 +53,7 @@ function LibrarianType({ books }) {
 
       {showAddForm && (
         <AddBookForm
-          newBook={newBook}
-          onAddBook={handleAddBook}
-          onUpdateNewBook={handleUpdateNewBook}
+          onSubmit={(e) => dispatch(addBook(e))}
           onCancel={() => setShowAddForm(false)}
         />
       )}
@@ -129,14 +91,9 @@ function LibrarianType({ books }) {
               <BookRow
                 key={book.id}
                 book={book}
-                isEditing={isEditing}
-                editingBook={editingBook}
-                onEdit={handleEditBook}
                 onReject={handleRejectRequest}
                 onApprove={handleApproveRequest}
                 onDelete={handleDeleteBook}
-                onUpdateBook={handleUpdateBook}
-                onCancelEdit={handleCancelEdit}
               />
             ))}
           </tbody>
